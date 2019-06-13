@@ -1,32 +1,33 @@
-import { Plugin } from "@hakkajs/cli/lib/plugin";
-import path from "path";
+import { Plugin } from '@hakkajs/cli/lib/plugin'
+import * as quickType from 'quicktype'
+import axios from 'axios'
+
 /**
- * FlutterAnswers
+ * FlutterOptions
  */
-export interface FlutterAnswers {
-  name: string;
+export interface FlutterOptions {
+  api: string
 }
 export default (api: Plugin) => {
-  api.command("flutter [name]").action(async (name: string) => {
-    // define your own questions or remove it if you don't need it
-    const answers = await api.prompt<FlutterAnswers>([
-      {
-        name: "name",
-        message: "Your questions?",
-        validate: flutterName => {
-          if (!flutterName) {
-            return "flutter name are required";
-          }
-          return true;
-        },
-        default: name
+  api
+    .command('flutter [action]')
+    .option('-A, --api <path>', 'api url')
+    .action(async (action: string, options: FlutterOptions) => {
+      switch (action) {
+        case 'store':
+          await quickType.main({
+            src: ['dist/store.json'],
+            lang: 'dart',
+            out: 'dist/store.dart',
+          })
+          // const res = await axios.get(options.api)
+          // if (res.data) {
+          // }
+          // console.log(action, options.api);
+          break
+        case 'widget':
+          console.log('widget')
+          break
       }
-    ]);
-    // write file to api.conf.dist/path/to/index.js
-    await api.tmplWithFormat(
-      'const name = "flutter";',
-      path.join(api.conf.dist, "path/to/", "index.js"),
-      answers
-    );
-  });
-};
+    })
+}
