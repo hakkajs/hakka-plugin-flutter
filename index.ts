@@ -1,6 +1,7 @@
 import { Plugin } from '@hakkajs/cli/lib/plugin'
 import * as quickType from 'quicktype'
 import axios from 'axios'
+import fs from 'fs-extra'
 
 /**
  * FlutterOptions
@@ -15,15 +16,15 @@ export default (api: Plugin) => {
     .action(async (action: string, options: FlutterOptions) => {
       switch (action) {
         case 'store':
-          await quickType.main({
-            src: ['dist/store.json'],
-            lang: 'dart',
-            out: 'dist/store.dart',
-          })
-          // const res = await axios.get(options.api)
-          // if (res.data) {
-          // }
-          // console.log(action, options.api);
+          const res = await axios.get(options.api)
+          if (res.data) {
+            await fs.writeFile('dist/store.json', JSON.stringify(res.data))
+            await quickType.main({
+              src: ['dist/store.json'],
+              lang: 'dart',
+              out: 'dist/store.dart',
+            })
+          }
           break
         case 'widget':
           console.log('widget')
